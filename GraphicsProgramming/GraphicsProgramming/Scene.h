@@ -43,6 +43,7 @@ protected:
 
 	// draw primitive functions
 	void DrawCup();
+	void DoLight();
 
 	//model
 	Model teacup;

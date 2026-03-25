@@ -34,9 +34,10 @@ void Model::Render()
 				glTexCoord2f(texcords[faces[i + 4] - 1].x, texcords[faces[i + 4] - 1].y);
 				glVertex3f(vertices[faces[i+3]-1].x, vertices[faces[i+3]-1].y, vertices[faces[i+3]-1].z);
 
-				glNormal3f(normals[faces[i + 8] - 1].x, normals[faces[i + 7] - 1].y, normals[faces[i + 7] - 1].z);
+				glNormal3f(normals[faces[i + 8] - 1].x, normals[faces[i + 8] - 1].y, normals[faces[i + 8] - 1].z);
 				glTexCoord2f(texcords[faces[i + 7] - 1].x, texcords[faces[i + 7] - 1].y);
 				glVertex3f(vertices[faces[i+6]-1].x, vertices[faces[i+6]-1].y, vertices[faces[i+6]-1].z);
+
 
 				
 			}

@@ -47,7 +47,7 @@ void Scene::update(float dt)
 void Scene::render() {
 
 	// Clear Color and Depth Buffers
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 	// Reset transformations
 	glLoadIdentity();
@@ -56,6 +56,7 @@ void Scene::render() {
 
 	myCamera.update();
 	
+	DoLight();
 	// Render geometry/scene here -------------------------------------
 	
 	DrawCup();
@@ -83,6 +84,8 @@ void Scene::initialiseOpenGL()
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	// Blending function
 
+	glEnable(GL_STENCIL_TEST); 
+	glEnable(GL_LIGHTING);
 
 	glEnable(GL_TEXTURE_2D);
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
@@ -92,10 +95,72 @@ void Scene::initialiseOpenGL()
 
 void Scene::DrawCup()
 {
+	
 	glPushMatrix();
-		glScalef(0.1, 0.1, 0.1);
-		teacup.Render();
+		glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+		glEnable(GL_STENCIL_TEST);
+		glStencilFunc(GL_ALWAYS, 1, 1);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+		glDisable(GL_DEPTH_TEST);
+
+		//the mask
+		glTranslatef(0,-4,0);
+		glBegin(GL_QUADS);
+			glVertex3f(-5, 0, 5);
+			glVertex3f(5, 0, 5);
+			glVertex3f(5, 0, -5);
+			glVertex3f(-5, 0, -5);
+		glEnd();
+
+		glEnable(GL_DEPTH_TEST);
+		glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+		glStencilFunc(GL_EQUAL, 1, 1);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+		//reflected part
+		glPushMatrix();
+			glScalef(0.03, -0.03, 0.03);
+			glTranslatef(0, 100, 0);
+			teacup.Render();
+		glPopMatrix();
+
+		glDisable(GL_STENCIL_TEST);
+		glEnable(GL_BLEND);
+		glDisable(GL_LIGHTING);
+
+		//vizible floor
+		glColor4f(0.8f, 0.8f, 1.0f, 0.8f);
+		glBegin(GL_QUADS);
+			glVertex3f(-5, 0, 5);
+			glVertex3f(5, 0, 5);
+			glVertex3f(5, 0, -5);
+			glVertex3f(-5, 0, -5);
+		glEnd();
+
+		glEnable(GL_LIGHTING);
+		glDisable(GL_BLEND);
+		
+		//unreflected teapot
+		glPushMatrix();	
+			glScalef(0.03, 0.03, 0.03);
+			glTranslatef(0, 100, 0);
+			teacup.Render();
+		glPopMatrix();
+
 	glPopMatrix();
+}
+
+void Scene::DoLight()
+{
+
+	GLfloat Light_Ambient[] = { 0.3f, 0.3f, 0.3f, 1.0f };
+	//GLfloat Light_Diffuse[] = { 1.f, 1.f, 1.f, 0.0f };
+	//GLfloat Light_DiffuseDirection[] = { 0.f, 1.f, 0.f, 0.0f };
+
+	glLightfv(GL_LIGHT0, GL_AMBIENT, Light_Ambient);
+	//glLightfv(GL_LIGHT0, GL_DIFFUSE, Light_Diffuse);
+	//glLightfv(GL_LIGHT0, GL_POSITION, Light_DiffuseDirection);
+	glEnable(GL_LIGHT0);
 }
 
 // Handles the resize of the window. If the window changes size the perspective matrix requires re-calculation to match new window size.
