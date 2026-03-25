@@ -18,6 +18,22 @@ Scene::Scene(Input *in)
 void Scene::handleInput(float dt)
 {
 	// Handle user input
+
+	// Camera movement
+	if (input->isKeyDown('w')) myCamera.moveForward(dt * 10);
+	else if (input->isKeyDown('s'))	myCamera.moveForward(-dt * 10);
+	if (input->isKeyDown(32)) myCamera.moveUp(dt * 10);
+	else if (GetAsyncKeyState(VK_CONTROL)) myCamera.moveUp(-dt * 10);									//This is needed cuz ctrl is a modifier key, thus it doesn't normally register alone normally. Shift is VK_SHIFT
+
+	int mousePos[2] = { input->getMouseX(), input->getMouseY() };
+	// Camera rotation
+	if (input->isMouseRDown())
+	{
+		myCamera.turnUp(mousePreviousPos[1] - mousePos[1]);
+		myCamera.turnRight(mousePos[0] - mousePreviousPos[0]);
+	}
+	mousePreviousPos[0] = mousePos[0];
+	mousePreviousPos[1] = mousePos[1];
 }
 
 void Scene::update(float dt)
@@ -36,11 +52,13 @@ void Scene::render() {
 	// Reset transformations
 	glLoadIdentity();
 	// Set the camera
-	gluLookAt(0.0f, 0.0f, 6.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	/*gluLookAt(0.0f, 0.0f, 6.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);*/
+
+	myCamera.update();
 	
 	// Render geometry/scene here -------------------------------------
 	
-
+	DrawCup();
 
 	// End render geometry --------------------------------------
 
@@ -64,6 +82,20 @@ void Scene::initialiseOpenGL()
 	glLightModelf(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	// Blending function
+
+
+	glEnable(GL_TEXTURE_2D);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+	teacup.Load("models/teapot.obj", "gfx/crate.png");
+}
+
+void Scene::DrawCup()
+{
+	glPushMatrix();
+		glScalef(0.1, 0.1, 0.1);
+		teacup.Render();
+	glPopMatrix();
 }
 
 // Handles the resize of the window. If the window changes size the perspective matrix requires re-calculation to match new window size.

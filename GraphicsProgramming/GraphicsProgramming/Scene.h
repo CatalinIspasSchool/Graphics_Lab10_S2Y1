@@ -14,6 +14,8 @@
 #include <stdio.h>
 // Further includes should go here:
 #include "SOIL.h"
+#include "Model.h"
+#include "MyCamera.h"
 #include <vector>
 
 
@@ -40,10 +42,18 @@ protected:
 	void calculateFPS();
 
 	// draw primitive functions
-	
+	void DrawCup();
+
+	//model
+	Model teacup;
+
+	// the camera
+
+	MyCamera myCamera;
 
 	// For access to user input.
 	Input* input;
+	int mousePreviousPos[2];
 		
 	// For Window and frustum calculation.
 	int width, height;
